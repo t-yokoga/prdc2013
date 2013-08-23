@@ -1,0 +1,50 @@
+Ifault = Sno_present,
+Sno_present = Slatent,
+Slatent = (s_ft->Sactive),
+Sactive = Sno_present.
+
+Iapplication = Swait,
+Swait = (s_init->Scompute),
+Scompute = (r_recovery->Swait|s_kick->Scompute|r_ft->Sfaulty),
+Sfaulty = (r_recovery->Swait).
+
+Iwatchdog = Sunused,
+Sunused = (r_init->Scount),
+Scount = (r_kick->Scount|s_alarm->Sexpired),
+Sexpired = (r_terminate->Sunused).
+
+Ibackbone = Sidle,
+Sidle = (r_alarm->s_terminate->Sbusy),
+Sbusy = (s_recovery->Sidle).
+
+Minit = (s_init->r_init->Minit).
+Mkick = (s_kick->r_kick->Mkick).
+Malarm = (s_alarm->r_alarm->Malarm).
+Mterminate = (s_terminate->r_terminate->Mterminate).
+Mrecovery = (s_recovery->r_recovery->Mrecovery).
+Mft = (s_ft->r_ft->Mft).
+
+||Msg = (Minit||Mkick||Malarm||Mterminate||Mrecovery||Mft).
+property ||SM1 = (Ifault||Iapplication||Iwatchdog||Ibackbone||Msg)\{s_ft,r_ft}.
+property ||SM2 = (Ifault||Iapplication||Iwatchdog||Ibackbone||Msg).
+
+Lapplication1 = (s_init->r_init->s_kick->s_kick->r_recovery->END).
+Lwatchdog1 = (r_init->r_kick->r_kick->s_alarm->r_alarm->r_terminate->END).
+Lbackbone1 = (r_alarm->s_terminate->s_recovery->END).
+||SQ1 = (Lapplication1||Lwatchdog1||Lbackbone1||Minit||Mkick||Malarm||Mterminate||Mrecovery).
+
+Lfault2 = (s_ft->END).
+Lapplication2 = (s_init->r_init->s_kick->r_ft->r_recovery->END).
+Lwatchdog2 = (r_init->r_kick->s_alarm->r_alarm->r_terminate->END).
+Lbackbone2 = (r_alarm->s_terminate->s_recovery->END).
+||SQ2 = (Lfault2||Lapplication2||Lwatchdog2||Lbackbone2||Minit||Mkick||Malarm||Mterminate||Mrecovery||Mft).
+
+||V1 = (SM1||SQ1).
+||V2 = (SM2||SQ2).
+
+Lapplication3 = (s_init->r_init->s_kick->s_kick->r_recovery->END).
+Lwatchdog3 = (r_init->r_kick->s_alarm->r_alarm->r_terminate->r_kick->END).
+Lbackbone3 = (r_alarm->s_terminate->s_recovery->END).
+||SQ3 = (Lapplication3||Lwatchdog3||Lbackbone3||Minit||Mkick||Malarm||Mterminate||Mrecovery).
+
+||V3 = (SM1||SQ3).
